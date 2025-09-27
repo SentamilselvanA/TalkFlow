@@ -1,49 +1,39 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/login";
 import Register from "./components/register";
-import "./components/style.css";
 import Message from "./components/message";
+import ChatPage from "./components/chatpage";
+import "./components/style.css";
+import { getToken } from "./utils/auth";
+
 const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = getToken();
+    if (token) setIsLoggedIn(true);
+  }, []);
+
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/message" element={<Message />} />
-    </Routes>
+    <Router>
+      <Routes>
+        {/* root: send to login if not logged in */}
+        <Route path="/" element={isLoggedIn ? <Navigate to="/message" /> : <Navigate to="/login" />} />
+
+        {/* auth pages */}
+        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* protected pages */}
+        <Route path="/message" element={isLoggedIn ? <Message /> : <Navigate to="/login" />} />
+        <Route path="/chat" element={isLoggedIn ? <ChatPage /> : <Navigate to="/login" />} />
+
+        {/* fallback */}
+        <Route path="./login" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
   );
 };
 
 export default App;
-
-
-
-
-
-
-
-// import React from "react";
-// import { Routes, Route, Link } from "react-router-dom";
-// import Login from "./components/Login";
-// import Register from "./components/register";
-// import "./components/style.css";
-
-
-// const App = () => {
-//   return (
-//     <div>
-//       <nav>
-//         <Link to="/login">Login</Link> |{" "}
-//         <Link to="/register">Register</Link>
-//       </nav>
-
-//       <Routes>
-//         <Route path="/login" element={<Login />} />
-//         <Route path="/register" element={<Register />} />
-//       </Routes>
-//     </div>
-//   );
-// };
-
-// export default App;
